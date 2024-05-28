@@ -4,7 +4,7 @@ ENTRY( _start )
 
 MEMORY
 {
-  ram   (wxa!ri) : ORIGIN = 0x80000000, LENGTH = 128M  /*Found in qemu src file*/
+  ram   (wxa!ri) : ORIGIN = 0x80000000, LENGTH = 128M     /*qemu defines the origin*/
 }
 
 PHDRS
@@ -37,6 +37,8 @@ SECTIONS
   } >ram AT>ram :bss
 
   PROVIDE(_memory_start = ORIGIN(ram));
-  PROVIDE(_stack = _bss_end);                 /*stack grows downwards*/
-  PROVIDE(_heap_start = _stack + 0x80000000); /*heap grows upwards*/
+  PROVIDE(_stack = _bss_end + 0x80000);
+  PROVIDE(_memory_end = ORIGIN(ram) + LENGTH(ram));
+  PROVIDE(_heap_start = _stack);
+  PROVIDE(_heap_size = _memory_end - _stack);
 }

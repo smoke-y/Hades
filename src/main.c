@@ -1,3 +1,6 @@
+#include "include.h"
+
 void main(){
-    int x = 2;
+    uartPut('a');
+    uartPut('b');
 };

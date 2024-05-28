@@ -1,9 +1,14 @@
-.section .text
-.global _start
+.option norvc
+.section .text.init
 
+.global _start
 _start:
-    csrr t0, mhartid  #load hardware thread id to t0. Should be 0
-    csrw satp, zero   #set satp(supervisor address translation and protection) to zero as we dont have virtual memory yet
+	# Any hardware threads (hart) that are not bootstrapping
+	# need to wait for an IPI
+	csrr	t0, mhartid
+	bnez	t0, _stall
+	csrw	satp, zero
+
     #clear bss
     la a0, _bss_start
     la a1, _bss_end
@@ -13,6 +18,7 @@ _bss_clear_start:
     bltu a0, a1, _bss_clear_start
 
     la sp, _stack
+    la gp, _global_pointer
     li t0, (0b11 << 11) | (1 << 7) | (1 << 3) #11: "machine mode", 7,3: enable interrupts
     csrw mstatus, t0
     la t1, main    #main in main.c
@@ -23,6 +29,7 @@ _bss_clear_start:
     csrw mie, t3
     la ra, _stall
     mret
+
 _stall:
     wfi
     j _stall
