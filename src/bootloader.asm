@@ -21,7 +21,7 @@ _bss_clear_start:
     la gp, _global_pointer
     li t0, (0b11 << 11) | (1 << 7) | (1 << 3) #11: "machine mode", 7,3: enable interrupts
     csrw mstatus, t0
-    la t1, main    #main in main.c
+    la t1, kernel_main    #src/kernel/kernel.c
     csrw mepc, t1
     la t2, _asm_trap_vector
     csrw mtvec, t2
