@@ -21,7 +21,7 @@ char uartGet(){
 void uartPut(char c){*(UART_MEM) = c;};
 
 void kprint(char *fmt, ...){
-    u32 len = strLen(fmt);
+    const u32 len = kstrlen(fmt);
     va_list args;
     va_start(args, fmt);
     for(u32 x=0; x<len; x++){
@@ -32,6 +32,10 @@ void kprint(char *fmt, ...){
                     break;
                 case 'd':{
                     s64 num = va_arg(args, s64);
+                    if(num == 0){
+                        uartPut('0');
+                        break;
+                    };
                     if(num < 0) uartPut('-');
                     u8 arr[20];
                     u32 i=0;
@@ -42,7 +46,13 @@ void kprint(char *fmt, ...){
                     while(i > 0) uartPut(arr[--i]);
                 }break;
                 case 'p':{
+                    uartPut('0');
+                    uartPut('x');
                     s64 num = va_arg(args, s64);
+                    if(num == 0){
+                        uartPut('0');
+                        break;
+                    };
                     u8 arr[20];
                     u32 i = 0;
                     while(num != 0){
@@ -52,13 +62,11 @@ void kprint(char *fmt, ...){
                         arr[i++] = temp;
                         num /= 16;
                     };
-                    uartPut('0');
-                    uartPut('x');
                     while(i > 0) uartPut(arr[--i]);
                 }break;
                 case 's':{
                     char *str = va_arg(args, char*);
-                    u32 stringLen = strLen(str);
+                    u32 stringLen = kstrlen(str);
                     for(u32 i=0; i<stringLen; i++) uartPut(str[i]);
                 }break;
             };

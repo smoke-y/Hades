@@ -21,8 +21,15 @@ SECTIONS
     *(.text.init) *(.text .text.*)
     PROVIDE(_text_end = .);
   } >ram AT>ram :text
+
    PROVIDE(_global_pointer = .);
 
+   .rodata : {
+    PROVIDE(_rodata_start = .);
+    *(.rodata .rodata.*)
+    PROVIDE(_rodata_end = .);
+  } >ram AT>ram :text
+  
   .data : {
     . = ALIGN(4096);
     PROVIDE(_data_start = .);
@@ -38,7 +45,5 @@ SECTIONS
 
   PROVIDE(_memory_start = ORIGIN(ram));
   PROVIDE(_stack = _bss_end + 0x80000);
-  PROVIDE(_memory_end = ORIGIN(ram) + LENGTH(ram));
   PROVIDE(_heap_start = _stack);
-  PROVIDE(_heap_size = _memory_end - _stack);
 }

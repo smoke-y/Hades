@@ -5,3 +5,4 @@
 #include "basic.h"
 #include "support.c"
 #include "io.c"
+#include "memory.c"
