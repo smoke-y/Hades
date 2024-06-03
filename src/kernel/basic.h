@@ -22,3 +22,6 @@ typedef double                  f64;
 
 #define TRUE  1
 #define FALSE 0
+
+#define PANIC(...) kprint("\n[PANIC] %s(%s:%d) ", __FILE__, __FUNCTION__, __LINE__);kprint(__VA_ARGS__)
+#define ASSERT(x) if(!(x)){kprint("\n[ASSERT] %s(%s:%d) %s\n", __FILE__, __FUNCTION__, __LINE__, #x);}
