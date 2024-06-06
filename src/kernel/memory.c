@@ -10,8 +10,6 @@ extern char _heap;
 extern char _stack;
 extern char _text_start;
 extern char _text_end;
-extern char _rodata_start;
-extern char _rodata_end;
 extern char _data_start;
 extern char _data_end;
 extern char _bss_start;

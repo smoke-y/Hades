@@ -23,12 +23,6 @@ SECTIONS
   } >ram AT>ram :text
 
    PROVIDE(_global_pointer = .);
-
-  .rodata : {
-    PROVIDE(_rodata_start = .);
-    *(.rodata .rodata.*)
-    PROVIDE(_rodata_end = .);
-  } >ram AT>ram :text
   
   .data : {
     . = ALIGN(4096);

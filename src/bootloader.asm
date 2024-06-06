@@ -40,8 +40,14 @@ _supervisor_mode:
     la t3, _trap_vector
     csrw stvec, t3
     csrw satp, a0
-    sfence.vma        #force CPU to flush cache and grab a fresh copy as table in cache might be outdated
     la ra, _stall
+    #each pmpcfg register is divided into 4 pmpXcfg. We are writing 0b11111 pmpcfg0. So we are clearing pmp0cfg to 1(NATO + RWX)
+    li t0, 0x1F
+    csrw pmpcfg0, t0
+    #we are setting the corresponding addr for pmp0cfg to -1(Full memory)
+    li t0, -1
+    csrw pmpaddr0, t0
+    sfence.vma        #force CPU to flush cache and grab a fresh copy as table in cache might be outdated
     sret
 
 _stall:

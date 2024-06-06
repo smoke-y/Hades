@@ -10,15 +10,16 @@ u64 kernel_init(){
     kprint("[+] Entered kernel_init from bootloader in machine mode\nuart_mem: %p\n", UART_MEM);
     pageMemInit();
     kernelVTable = newVTable();
-    mapMemRange(kernelVTable, &_text_start, &_rodata_end, ENTRY_READ | ENTRY_EXECUTE);
-    mapMemRange(kernelVTable, &_data_start, &_bss_end, ENTRY_READ | ENTRY_WRITE | ENTRY_EXECUTE);
-    mapMemRange(kernelVTable, &_bss_end, (&_heap) + (PAGE_SIZE*TABLE_PAGE_COUNT), ENTRY_READ | ENTRY_WRITE);  //map stack -> page_table
+    mapMemRange(kernelVTable, &_text_start, &_text_end, ENTRY_EXECUTE | ENTRY_READ);
+    mapMemRange(kernelVTable, &_data_start, &_heap + (&_memory_end - &_memory_start), ENTRY_READ | ENTRY_WRITE);
+    mapMemRange(kernelVTable, (void*)UART_MEM, (void*)UART_MEM + 100, ENTRY_READ | ENTRY_WRITE);
     kprint("kernel_vtable: %p\n", kernelVTable);
     return (u64)8 << 60 | ((u64)kernelVTable >> 12); //8 << 60 for Sv39 scheme
 };
 
 //executes in supervisor mode
 void kernel_main(){
+    kprint("[+] Entered kernel_main in supervisor mode\n");
     char shellInputBuff[SHELL_INPUT_BUFF_SIZE];
     while(TRUE){
         kprint("\n>> ");
