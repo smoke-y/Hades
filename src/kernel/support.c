@@ -3,7 +3,7 @@ u32 kstrlen(char *str){
     while(str[x]) x++;
     return x;
 };
-u32 kstrcmp(char *str1, char *str2){
+u32 kstrcmp(char *restrict str1, char *restrict str2){
     u32 len1 = kstrlen(str1);
     u32 len2 = kstrlen(str2);
     if(len1 != len2) return FALSE;

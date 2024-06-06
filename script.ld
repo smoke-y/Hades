@@ -24,7 +24,7 @@ SECTIONS
 
    PROVIDE(_global_pointer = .);
 
-   .rodata : {
+  .rodata : {
     PROVIDE(_rodata_start = .);
     *(.rodata .rodata.*)
     PROVIDE(_rodata_end = .);
@@ -44,6 +44,7 @@ SECTIONS
   } >ram AT>ram :bss
 
   PROVIDE(_memory_start = ORIGIN(ram));
+  PROVIDE(_memory_end = ORIGIN(ram) + LENGTH(ram));
   PROVIDE(_stack = _bss_end + 0x80000);
-  PROVIDE(_heap_start = _stack);
+  PROVIDE(_heap = _stack);
 }

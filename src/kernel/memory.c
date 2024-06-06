@@ -6,19 +6,30 @@ enum PageFlag{
     PAGE_NOT_FREE,
 };
 
-extern char _heap_start;
+extern char _heap;
+extern char _stack;
+extern char _text_start;
+extern char _text_end;
+extern char _rodata_start;
+extern char _rodata_end;
+extern char _data_start;
+extern char _data_end;
+extern char _bss_start;
+extern char _bss_end;
+extern char _memory_start;
+extern char _memory_end;
 
 static u8   *table;
 static char *pages;
 
 void pageMemInit(){
-    pages = &_heap_start + (TABLE_PAGE_COUNT * PAGE_SIZE);
+    pages = &_heap + (TABLE_PAGE_COUNT * PAGE_SIZE);
     u64 order = (1 << 12) - 1;
     pages = (char*)(((u64)pages + order) & ~order);
-    table = (u8*)&_heap_start;
+    table = (u8*)&_heap;
     kmemset(table, PAGE_FREE, PAGE_SIZE * TABLE_PAGE_COUNT);
 
-    kprint("heap_start: %p\npage_table_len: %d\npage_table_start: %p\npages_start: %p\n", &_heap_start, TABLE_PAGE_COUNT, table, pages);
+    kprint("heap_start: %p\npage_table_len: %d\npage_table_start: %p\npages_start: %p\n", &_heap, TABLE_PAGE_COUNT, table, pages);
 };
 char* allocHardPage(){
     const u32 entriesInATable = kceil((f32)(TABLE_PAGE_COUNT * PAGE_SIZE)/(f32)sizeof(u8));
@@ -123,7 +134,9 @@ void destroyVTable(VTable *root){
     };
     freeHardPage(root);
 };
-void mapMemRange(VTable *root, u64 begin, u64 end, u64 bits){
+void mapMemRange(VTable *root, void *restrict beginPtr, void *restrict endPtr, u64 bits){
+    u64 begin = (u64)beginPtr;
+    u64 end = (u64)endPtr;
     u64 order = (1 << 12) - 1;
     begin = begin & ~order;
     end = (end + order) & ~order;
