@@ -6,3 +6,4 @@
 #include "support.c"
 #include "io.c"
 #include "memory.c"
+#include "trap.c"
