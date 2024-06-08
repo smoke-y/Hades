@@ -80,25 +80,12 @@ void kprint(char *fmt, ...){
     };
     va_end(args);
 };
+
 u32 kscan(char *buff, u32 len){
-    u32 x=0;
-    while(x< len-1){           //-1 for null byte
-        char c = uartGet();
-        while(c == 0) c = uartGet();
-        switch(c){
-            case 13:           //carriage return
-                uartPut('\n');
-                buff[x++] = '\0';
-                return x;
-            case 127:          //backspace
-                uartPut(8);    //move cursor to left
-                uartPut(' ');  //write space
-                uartPut(8);    //move cursor back to left
-                continue;
-            default: uartPut(c);
-        };
-        buff[x++] = c;
-    };
-    buff[x++] = '\0';
-    return x;
+    hades.inputContext.buff = buff;
+    hades.inputContext.len = len;
+    hades.inputContext.enteredUpto = 0;
+    hades.inputContext.done = FALSE;
+    while(hades.inputContext.done == FALSE) asm volatile ("wfi");
+    hades.inputContext.buff = 0;
 };

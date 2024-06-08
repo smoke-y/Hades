@@ -8,7 +8,7 @@
 .endm
 
 _trap_vector:
-    csrrw t6, mscratch, t6  #mscratch contains address to kernelTrapFrame(kernel/kernel.c)
+    csrrw t6, mscratch, t6  #mscratch contains address to hades.trapFrame(kernel/kernel.c)
 
     .set i, 1
     .rept 30

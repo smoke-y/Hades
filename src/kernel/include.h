@@ -4,6 +4,7 @@
 
 #include "basic.h"
 #include "support.c"
+#include "hades.c"
 #include "io.c"
 #include "memory.c"
 #include "trap.c"

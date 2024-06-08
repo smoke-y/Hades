@@ -51,11 +51,6 @@ void dumpHardPageTable(){
     };  
 };
 
-#define VTABLE_ENTRIES_COUNT 512
-
-typedef struct{
-    u64 entries[VTABLE_ENTRIES_COUNT];
-} VTable;
 enum EntryBits{
     ENTRY_VALID = 1,
     ENTRY_READ  = 1 << 1,

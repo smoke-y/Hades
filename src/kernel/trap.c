@@ -4,13 +4,6 @@
 enum PlicId{
     PLIC_UART_ID = 10
 };
-typedef struct{
-    f64 regs[32];
-    f64 fregs[32];
-    u64 satp;
-    void *stack;
-    u64 hartID;
-}TrapFrame;
 
 volatile u32 *PLIC_ENABLE    = (u32*)0x0c002000;
 volatile u32 *PLIC_PRIORITY  = (u32*)0x0c000000;
@@ -35,7 +28,25 @@ void plicHandleInterrupt(){
     ASSERT(interrupt != 0);
     switch(interrupt){
         case 10:{
-            kprint("uart interrupt :)\n");
+            if(hades.inputContext.enteredUpto > hades.inputContext.len-1){     //-1 for null byte
+                hades.inputContext.buff[hades.inputContext.enteredUpto++] = '\0';
+                hades.inputContext.done = TRUE;
+            };
+            char c = uartGet();
+            switch(c){
+                case 13:           //carriage return
+                    uartPut('\n');
+                    hades.inputContext.buff[hades.inputContext.enteredUpto++] = '\0';
+                    hades.inputContext.done = TRUE;
+                    return;
+                case 127:          //backspace
+                    uartPut(8);    //move cursor to left
+                    uartPut(' ');  //write space
+                    uartPut(8);    //move cursor back to left
+                    break;
+                default: uartPut(c);
+            };
+            hades.inputContext.buff[hades.inputContext.enteredUpto++] = c;
         }break;
         default:{
             PANIC("Unkown plic interrupt\n");
@@ -56,7 +67,7 @@ u64 trap(u64 epc, u64 tval, u64 cause, u64 hart, u64 status, TrapFrame *frame){
                 *MTIMECMP = (*MTIME) + CLOCK_FREQUENCY;     //raise interrupt after 1 sec
             }break;
             case 11:{
-                plicHandleInterrupt();
+                if(hades.inputContext.buff) plicHandleInterrupt();
             }break;
             default:{
                 PANIC("Unhandled async interrupt: hart[%d] cause[%d]\n", hart, causeNum);
