@@ -106,7 +106,7 @@ u64 getPhyFromVirt(VTable *root, u64 vaddr){
         v = &table->entries[vpn[x]];
     };
     /*
-    BITSHIFT TRICK(replace 12 by any desired number)
+    BIT TRICK(replace 12 by any desired number)
     1 << 12 gives us       0b1000000000000      1 followed by 12 zero
     (1 << 12) - 1 gives us 0b111111111111       12 ones :)
     */

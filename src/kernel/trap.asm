@@ -31,6 +31,7 @@ _trap_vector:
     call trap        #kernel/trap.c
 
     csrw mepc, a0
+    csrr t6, mscratch
 
     .set i, 1
     .rept 31

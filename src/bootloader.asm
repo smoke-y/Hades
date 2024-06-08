@@ -21,12 +21,14 @@ _bss_clear_start:
 _machine_mode:
     la sp, _stack
     la gp, _global_pointer
-    li t0, (0b11 << 11)   #"machine mode"
+    li t0, (0b11 << 11)
     csrw mstatus, t0
     la t1, kernel_init    #kernel/kernel.c
     csrw mepc, t1
     la t2, _trap_vector
     csrw mtvec, t2
+    li t3, (1 << 3) | (1 << 7) | (1 << 11)
+	csrw mie, t3
     la ra, _supervisor_mode
     mret
 _supervisor_mode:
