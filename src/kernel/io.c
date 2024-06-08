@@ -85,7 +85,5 @@ u32 kscan(char *buff, u32 len){
     hades.inputContext.buff = buff;
     hades.inputContext.len = len;
     hades.inputContext.enteredUpto = 0;
-    hades.inputContext.done = FALSE;
-    while(hades.inputContext.done == FALSE) asm volatile ("wfi");
-    hades.inputContext.buff = 0;
+    while(hades.inputContext.buff) asm volatile ("wfi");
 };

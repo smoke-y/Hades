@@ -14,7 +14,6 @@ typedef struct{
     char *buff;
     u64   len;
     u64   enteredUpto;
-    u8    done;
 }InputContext;
 
 typedef struct{

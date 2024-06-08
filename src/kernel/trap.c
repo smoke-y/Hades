@@ -24,35 +24,6 @@ void plicEnable(enum PlicId id, u8 priority){
 
 void plicSetThreshold(u8 threshold){*PLIC_THRESHOLD = threshold & MAX_PLIC_PRIORITY;};
 void plicHandleInterrupt(){
-    u32 interrupt = *PLIC_CLAIM;
-    ASSERT(interrupt != 0);
-    switch(interrupt){
-        case 10:{
-            if(hades.inputContext.enteredUpto > hades.inputContext.len-1){     //-1 for null byte
-                hades.inputContext.buff[hades.inputContext.enteredUpto++] = '\0';
-                hades.inputContext.done = TRUE;
-            };
-            char c = uartGet();
-            switch(c){
-                case 13:           //carriage return
-                    uartPut('\n');
-                    hades.inputContext.buff[hades.inputContext.enteredUpto++] = '\0';
-                    hades.inputContext.done = TRUE;
-                    return;
-                case 127:          //backspace
-                    uartPut(8);    //move cursor to left
-                    uartPut(' ');  //write space
-                    uartPut(8);    //move cursor back to left
-                    break;
-                default: uartPut(c);
-            };
-            hades.inputContext.buff[hades.inputContext.enteredUpto++] = c;
-        }break;
-        default:{
-            PANIC("Unkown plic interrupt\n");
-        }break;
-    };
-    *PLIC_CLAIM = interrupt;    //by writing it back, we tell the PLIC that it has been claimed
 };
 
 u64 trap(u64 epc, u64 tval, u64 cause, u64 hart, u64 status, TrapFrame *frame){
@@ -67,7 +38,42 @@ u64 trap(u64 epc, u64 tval, u64 cause, u64 hart, u64 status, TrapFrame *frame){
                 *MTIMECMP = (*MTIME) + CLOCK_FREQUENCY;     //raise interrupt after 1 sec
             }break;
             case 11:{
-                if(hades.inputContext.buff) plicHandleInterrupt();
+                u32 interrupt = *PLIC_CLAIM;
+                ASSERT(interrupt != 0);
+                char c = uartGet();
+                if(hades.inputContext.buff == 0){
+                    *PLIC_CLAIM = interrupt;       //by writing it back, we tell the PLIC that it has been claimed
+                    return epc;
+                };
+                switch(interrupt){
+                    case 10:{
+                        if(hades.inputContext.enteredUpto > hades.inputContext.len-1){     //-1 for null byte
+                            hades.inputContext.buff[hades.inputContext.enteredUpto++] = '\0';
+                            hades.inputContext.buff = 0;
+                            *PLIC_CLAIM = interrupt;
+                            return epc;
+                        };
+                        switch(c){
+                            case 13:           //carriage return
+                                uartPut('\n');
+                                hades.inputContext.buff[hades.inputContext.enteredUpto++] = '\0';
+                                hades.inputContext.buff = 0;
+                                *PLIC_CLAIM = interrupt;
+                                return epc;
+                            case 127:          //backspace
+                                uartPut(8);    //move cursor to left
+                                uartPut(' ');  //write space
+                                uartPut(8);    //move cursor back to left
+                                break;
+                            default: uartPut(c);
+                        };
+                        hades.inputContext.buff[hades.inputContext.enteredUpto++] = c;
+                    }break;
+                    default:{
+                        PANIC("Unkown plic interrupt\n");
+                    }break;
+                };
+                *PLIC_CLAIM = interrupt;
             }break;
             default:{
                 PANIC("Unhandled async interrupt: hart[%d] cause[%d]\n", hart, causeNum);
@@ -85,7 +91,8 @@ u64 trap(u64 epc, u64 tval, u64 cause, u64 hart, u64 status, TrapFrame *frame){
                 return epc;
             }break;
             case 8:{
-                kprint("Sys-call from user mode: hart[%d] program_counter[%p]\n", hart, epc);
+                u32 index = frame->regs[10];   //a0(x10)
+                sysCallTable[index](frame);
             }break;
             case 9:{
                 kprint("Sys-call from supervisor mode: hart[%d] program_counter[%p]\n", hart, epc);

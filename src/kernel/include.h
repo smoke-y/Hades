@@ -7,5 +7,6 @@
 #include "hades.c"
 #include "io.c"
 #include "memory.c"
+#include "syscall.c"
 #include "trap.c"
 #include "process.c"
