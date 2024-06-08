@@ -6,7 +6,7 @@ u64 kernel_init(){
     kprint("[+] Entered kernel_init from bootloader in machine mode\nuart_mem: %p\n", UART_MEM);
     pageMemInit();
     hades.vtable = newVTable();
-    kmemset(&hades.trapFrame, 0, sizeof(TrapFrame));
+    memset(&hades.trapFrame, 0, sizeof(TrapFrame));
     hades.trapFrame.stack = allocHardPage() + PAGE_SIZE;  //stack grows downwards
     asm volatile ("csrw mscratch, %0" :: "r"(&hades.trapFrame));
     mapMemRange(hades.vtable, &_text_start, &_text_end, ENTRY_EXECUTE | ENTRY_READ);

@@ -25,12 +25,12 @@ void pageMemInit(){
     u64 order = (1 << 12) - 1;
     pages = (char*)(((u64)pages + order) & ~order);
     table = (u8*)&_heap;
-    kmemset(table, PAGE_FREE, PAGE_SIZE * TABLE_PAGE_COUNT);
+    memset(table, PAGE_FREE, PAGE_SIZE * TABLE_PAGE_COUNT);
 
     kprint("heap_start: %p\npage_table_len: %d\npage_table_start: %p\npages_start: %p\n", &_heap, TABLE_PAGE_COUNT, table, pages);
 };
 char* allocHardPage(){
-    const u32 entriesInATable = kceil((f32)(TABLE_PAGE_COUNT * PAGE_SIZE)/(f32)sizeof(u8));
+    const u32 entriesInATable = ceil((f32)(TABLE_PAGE_COUNT * PAGE_SIZE)/(f32)sizeof(u8));
     for(u32 x=0; x<entriesInATable; x++){
         if(table[x] == PAGE_FREE){
             table[x] = PAGE_NOT_FREE;
@@ -45,7 +45,7 @@ void freeHardPage(void *ptr){
 };
 void dumpHardPageTable(){
     kprint("---hard pages---\n");
-    const u32 entriesInATable = kceil((f32)(TABLE_PAGE_COUNT * PAGE_SIZE)/(f32)sizeof(u8));
+    const u32 entriesInATable = ceil((f32)(TABLE_PAGE_COUNT * PAGE_SIZE)/(f32)sizeof(u8));
     for(u32 x=0; x<entriesInATable; x++){
         if(table[x] == PAGE_NOT_FREE) kprint("%d -> %p\n", x, &pages[PAGE_SIZE * x]);
     };  
@@ -60,7 +60,7 @@ enum EntryBits{
 };
 VTable *newVTable(){
     void *table = allocHardPage();
-    kmemset(table, 0, PAGE_SIZE);
+    memset(table, 0, PAGE_SIZE);
     return table;
 };
 void vmap(VTable *root, u64 vaddr, u64 paddr, u64 bits){

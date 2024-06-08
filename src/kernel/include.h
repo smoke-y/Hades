@@ -8,3 +8,4 @@
 #include "io.c"
 #include "memory.c"
 #include "trap.c"
+#include "process.c"

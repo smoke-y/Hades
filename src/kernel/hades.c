@@ -4,8 +4,8 @@ typedef struct{
     u64 entries[VTABLE_ENTRIES_COUNT];
 } VTable;
 typedef struct{
-    f64 regs[32];
-    f64 fregs[32];
+    u64 regs[32];
+    u64 fregs[32];
     u64 satp;
     void *stack;
     u64 hartID;
@@ -21,6 +21,7 @@ typedef struct{
     VTable *vtable;
     TrapFrame trapFrame;
     InputContext inputContext;
+    u16 pid;
 }HadesKernel;
 
 static HadesKernel hades;

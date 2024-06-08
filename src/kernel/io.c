@@ -21,7 +21,7 @@ char uartGet(){
 void uartPut(char c){*(UART_MEM) = c;};
 
 void kprint(char *fmt, ...){
-    const u32 len = kstrlen(fmt);
+    const u32 len = strlen(fmt);
     va_list args;
     va_start(args, fmt);
     for(u32 x=0; x<len; x++){
@@ -66,7 +66,7 @@ void kprint(char *fmt, ...){
                 }break;
                 case 's':{
                     char *str = va_arg(args, char*);
-                    u32 stringLen = kstrlen(str);
+                    u32 stringLen = strlen(str);
                     for(u32 i=0; i<stringLen; i++) uartPut(str[i]);
                 }break;
             };
