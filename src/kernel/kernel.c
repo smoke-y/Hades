@@ -6,7 +6,10 @@ u64 kernel_init(){
     kprint("[+] Entered kernel_init from bootloader in machine mode\nuart_mem: %p\n", UART_MEM);
     pageMemInit();
     hades.vtable = newVTable();
+    hades.pid = 1;     //pid gets given out from 1
     memset(&hades.trapFrame, 0, sizeof(TrapFrame));
+    hades.scheduler.count = 0;
+    hades.scheduler.cur = 0;
     hades.trapFrame.stack = allocHardPage() + PAGE_SIZE;  //stack grows downwards
     asm volatile ("csrw mscratch, %0" :: "r"(&hades.trapFrame));
     mapMemRange(hades.vtable, &_text_start, &_text_end, ENTRY_EXECUTE | ENTRY_READ);
@@ -18,6 +21,10 @@ u64 kernel_init(){
     return (u64)8 << 60 | ((u64)hades.vtable >> 12); //8 << 60 for Sv39 scheme
 };
 
+void testProcess(){
+    makeSysCall(0, 0, 0, 0, 0, 0, 0);
+};
+
 void kernel_main(){
     //executes in supervisor mode
     kprint("[+] Entered kernel_main in supervisor mode\n");
@@ -26,6 +33,5 @@ void kernel_main(){
     *MTIMECMP = *MTIME + CLOCK_FREQUENCY;
     char buff[100];
     kscan(buff, 100);
-    kprint("%s\n", buff);
-    kprint("---stalling---\n");
+    kprint("%s", buff);
 };

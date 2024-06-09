@@ -8,5 +8,5 @@
 #include "io.c"
 #include "memory.c"
 #include "syscall.c"
-#include "trap.c"
 #include "process.c"
+#include "trap.c"

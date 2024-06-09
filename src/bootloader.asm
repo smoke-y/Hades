@@ -56,4 +56,5 @@ _stall:
     wfi
     j _stall
 
-.include "src/kernel/trap.asm"
+.include "src/kernel/asm/trap.asm"
+.include "src/kernel/asm/user.asm"
