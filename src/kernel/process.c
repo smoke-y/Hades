@@ -35,7 +35,7 @@ SwitchToUserContext schedule(Scheduler *scheduler){
     memset(&stuc, 0, sizeof(SwitchToUserContext));
     if(scheduler->count == 0) return stuc;
     scheduler->cur++;
-    if(scheduler->cur == MAX_PROCESS) scheduler->cur = 0;
+    if(scheduler->cur == scheduler->count) scheduler->cur = 0;
     Process *process = &scheduler->processes[scheduler->cur];
     switch(process->state){
         case PROCESS_RUNNING:{

@@ -13,6 +13,7 @@ _switch_to_user:
     csrw mie, t1
     la t2, _trap_vector
     csrw mtvec, t2
+    sfence.vma
     mv t6, a0
     .set i, 1
     .rept 31
@@ -20,3 +21,4 @@ _switch_to_user:
         .set i, i+1
     .endr
     mret
+    

@@ -33,8 +33,8 @@ typedef struct{
 }Process;
 typedef struct{
     //note this entrire struct should fit inside a page
-    u32 count;
-    u32 cur;
+    u16 count;
+    u16 cur;
     Process processes[MAX_PROCESS];
 }Scheduler;
 
