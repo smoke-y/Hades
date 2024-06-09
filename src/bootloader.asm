@@ -3,6 +3,7 @@
 .section .text.init
 
 .global _start
+.global _stall
 _start:
 	# Any hardware threads (hart) that are not bootstrapping
 	# need to wait for an IPI

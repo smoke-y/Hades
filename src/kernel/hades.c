@@ -1,13 +1,6 @@
 #define VTABLE_ENTRIES_COUNT 512
 #define MAX_PROCESS 7
 
-enum ProcessState{
-    PROCESS_RUNNING,
-    PROCESS_SLEEPING,
-    PROCESS_WAITING,
-    PROCESS_DED,
-};
-
 typedef struct{
     u64 entries[VTABLE_ENTRIES_COUNT];
 } VTable;
@@ -29,7 +22,6 @@ typedef struct{
     char   *stack;
     u64     programCounter;
     u16     pid;
-    enum ProcessState state;
 }Process;
 typedef struct{
     //note this entrire struct should fit inside a page

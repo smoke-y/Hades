@@ -1,5 +1,9 @@
 #include "include.h"
 
+void testProcess(){
+    //makeSysCall(0, 0, 0, 0, 0, 0, 0);
+    asm volatile ("j _stall");
+};
 u64 kernel_init(){
     //executes in machine mode
     uartInit();
@@ -21,10 +25,6 @@ u64 kernel_init(){
     return (u64)8 << 60 | ((u64)hades.vtable >> 12); //8 << 60 for Sv39 scheme
 };
 
-void testProcess(){
-    makeSysCall(0, 0, 0, 0, 0, 0, 0);
-};
-
 void kernel_main(){
     //executes in supervisor mode
     kprint("[+] Entered kernel_main in supervisor mode\n");
@@ -32,5 +32,9 @@ void kernel_main(){
     plicEnable(PLIC_UART_ID, 1);
     *MTIMECMP = *MTIME + CLOCK_FREQUENCY;
     Process *test = newProcess(testProcess, &hades.scheduler);
-    test->state = PROCESS_RUNNING;
+    SwitchToUserContext stuc = schedule(&hades.scheduler);
+    if(stuc.trapFrame != 0){
+        //kprint("%p %p %d", stuc.trapFrame, stuc.mepc, stuc.satp);
+        _switch_to_user(stuc.trapFrame, stuc.mepc, stuc.satp);
+    };
 };
