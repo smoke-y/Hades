@@ -24,7 +24,7 @@ _machine_mode:
     la gp, _global_pointer
     li t0, (0b11 << 11) | (1 << 18)
     csrw mstatus, t0
-    la t1, kernel_init    #kernel/kernel.c
+    la t1, kernel_init            #kernel/kernel.c
     csrw mepc, t1
     la t2, _trap_vector
     csrw mtvec, t2
@@ -33,9 +33,9 @@ _machine_mode:
     la ra, _supervisor_mode
     mret
 _supervisor_mode:
-    li t0, (1 << 8) | (1 << 5) #8: "supervisor mode", 5: enable interrupt
+    li t0, (1 << 8) | (1 << 5) | (1 << 18) #8: "supervisor mode", 5: enable interrupt
     csrw sstatus, t0
-    la t1, kernel_main    #kernel/kernel.c
+    la t1, kernel_main             #kernel/kernel.c
     csrw sepc, t1
     li t2, 1 | (1 << 5) | (1 << 9) #software, timer, external interrupts
     csrw sie, t2                   #enable above
@@ -57,5 +57,4 @@ _stall:
     wfi
     j _stall
 
-.include "src/kernel/asm/trap.asm"
-.include "src/kernel/asm/user.asm"
+.include "src/kernel/trap.asm"
