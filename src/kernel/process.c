@@ -8,12 +8,13 @@ Process *newProcess(void *procHardAddress, Scheduler *scheduler){
     memset(&process->trapFrame, 0, sizeof(TrapFrame));
     process->vtable = newVTable();
     process->stack = allocHardPage();
-    process->programCounter = PROCESS_STARTING_VADDRESS;
+    process->programCounter = (u64)procHardAddress;
     process->pid = hades.pid++;
 
     process->trapFrame.regs[2] = (u64)(process->stack + PAGE_SIZE);
-    vmap(process->vtable, (u64)STACK_STARTING_VADDRESS, (u64)process->stack, ENTRY_READ | ENTRY_WRITE);
-    vmap(process->vtable, (u64)PROCESS_STARTING_VADDRESS, (u64)procHardAddress, ENTRY_READ | ENTRY_EXECUTE);
+    //vmap(process->vtable, (u64)STACK_STARTING_VADDRESS, (u64)process->stack, ENTRY_READ | ENTRY_WRITE);
+    mapMemRange(process->vtable, &_text_start, &_text_end, ENTRY_EXECUTE | ENTRY_READ);
+    mapMemRange(process->vtable, &_data_start, &_heap + (&_memory_end - &_memory_start), ENTRY_READ | ENTRY_WRITE);
 
     return process;
 };

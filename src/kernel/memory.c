@@ -57,6 +57,9 @@ enum EntryBits{
     ENTRY_WRITE = 1 << 2,
     ENTRY_EXECUTE = 1 << 3,
     ENTRY_LEAF  = ENTRY_READ | ENTRY_WRITE | ENTRY_EXECUTE,
+    ENTRY_USER = 1 << 4,
+    ENTRY_DIRTY = 1 << 7,
+    ENTRY_ACCESS = 1 << 6,
 };
 VTable *newVTable(){
     void *table = allocHardPage();

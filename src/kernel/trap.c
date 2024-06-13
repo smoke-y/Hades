@@ -97,11 +97,11 @@ u64 trap(u64 epc, u64 tval, u64 cause, u64 hart, u64 status, TrapFrame *frame){
                 return epc;
             }break;
             case 8:{
-                u32 index = frame->regs[10];   //a0(x10)
-                sysCallTable[index](frame);
+                kprint("Sys-call from user mode: hart[%d] program_counter[%p]\n", hart, epc);
             }break;
             case 9:{
-                kprint("Sys-call from supervisor mode: hart[%d] program_counter[%p]\n", hart, epc);
+                u32 index = frame->regs[10];   //a0(x10)
+                sysCallTable[index](frame);
             }break;
             case 11:{
                 PANIC("Sys-call from machine mode: hart[%d] program_counter[%p]\n", hart, epc);
@@ -109,6 +109,7 @@ u64 trap(u64 epc, u64 tval, u64 cause, u64 hart, u64 status, TrapFrame *frame){
             }break;
             case 12:{
                 kprint("Instruction page fault: hart[%d] program_counter[%p] trap_value[%d]\n", hart, epc, tval);
+                asm volatile ("j _stall");
             }break;
             case 13:{
                 kprint("Load page fault: hart[%d] program_counter[%p] trap_value[%d]\n", hart, epc, tval);
