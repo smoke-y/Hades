@@ -22,7 +22,7 @@ _bss_clear_start:
 _machine_mode:
     la sp, _stack
     la gp, _global_pointer
-    li t0, (0b11 << 11)
+    li t0, (0b11 << 11) | (1 << 18)
     csrw mstatus, t0
     la t1, kernel_init    #kernel/kernel.c
     csrw mepc, t1
@@ -33,7 +33,7 @@ _machine_mode:
     la ra, _supervisor_mode
     mret
 _supervisor_mode:
-    li t0, (1 << 8) | (1 << 5)  #8: "supervisor mode", 5: enable interrupt
+    li t0, (1 << 8) | (1 << 5) #8: "supervisor mode", 5: enable interrupt
     csrw sstatus, t0
     la t1, kernel_main    #kernel/kernel.c
     csrw sepc, t1

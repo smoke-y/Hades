@@ -17,13 +17,13 @@ u64 kernel_init(){
     hades.scheduler.cur = 0;
     hades.trapFrame.stack = allocHardPage() + PAGE_SIZE;  //stack grows downwards
     asm volatile ("csrw mscratch, %0" :: "r"(&hades.trapFrame));
-    mapMemRange(hades.vtable, &_text_start, &_text_end, ENTRY_EXECUTE | ENTRY_READ | ENTRY_USER | ENTRY_DIRTY | ENTRY_ACCESS);
+    mapMemRange(hades.vtable, &_text_start, &_text_end, ENTRY_EXECUTE | ENTRY_READ | ENTRY_DIRTY | ENTRY_ACCESS);
     mapMemRange(hades.vtable, &_data_start, &_heap + (&_memory_end - &_memory_start), ENTRY_READ | ENTRY_WRITE);
     mapMemRange(hades.vtable, (void*)UART_MEM, (void*)UART_MEM + 100, ENTRY_READ | ENTRY_WRITE);
     mapMemRange(hades.vtable, (void*)MTIMECMP, (void*)MTIME, ENTRY_READ | ENTRY_WRITE);
     mapMemRange(hades.vtable, (void*)PLIC_PRIORITY, (void*)PLIC_CLAIM, ENTRY_READ | ENTRY_WRITE);
     kprint("kernel_vtable: %p\n", hades.vtable);
-    vmap(hades.vtable, (u64)testProcess, (u64)testProcess, ENTRY_READ | ENTRY_EXECUTE | ENTRY_USER | ENTRY_ACCESS | ENTRY_DIRTY);
+    vmap(hades.vtable, (u64)testProcess, (u64)testProcess, ENTRY_READ | ENTRY_EXECUTE | ENTRY_ACCESS | ENTRY_DIRTY);
     return (u64)8 << 60 | ((u64)hades.vtable >> 12); //8 << 60 for Sv39 scheme
 };
 
