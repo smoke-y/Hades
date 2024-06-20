@@ -25,5 +25,7 @@ void kernel_main(){
     plicSetThreshold(0);
     plicEnable(PLIC_UART_ID, 1);
     *MTIMECMP = *MTIME + CLOCK_FREQUENCY;
-    virtioInit();
+    if(virtioInit()){
+        
+    };
 };

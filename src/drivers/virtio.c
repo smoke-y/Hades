@@ -1,8 +1,15 @@
 //ref: https://brennan.io/2020/03/22/sos-block-device/
 
-#define VIRTIO_MAGIC 0x74726976
+#define VIRTIO_MAGIC     0x74726976
+#define VIRTIO_RESET     0
+#define VIRTIO_ACK       1
+#define VIRTIO_DRIVER    2
+#define VIRTIO_STATUS_OK 8
+#define READ32(reg) (*(volatile s32*)&(reg))
+#define WRITE32(reg, value) (*(volatile s32*)&(reg))=(value)
+
 volatile char *virtioStart = (char*)0x10001000;
-volatile char *virtioEnd   = (char*)0x10008000;
+volatile char *virtioEnd   = (char*)0x10009000;
 
 typedef volatile struct __attribute__((packed)) {
 	u32 MagicValue;
@@ -41,22 +48,34 @@ typedef volatile struct __attribute__((packed)) {
 	u32 Config[0];
 } virtioRegs;
 
-#define READ32(reg) (*(volatile s32*)&(reg))
-#define WRITE32(reg, value) (*(volatile s32*)&(reg))=(value)
+void memBar(){asm volatile("sfence.vma");};
 
-void virtioSetUpBlk(virtioRegs *vregs){
-    
+u8 virtioSetUpBlk(virtioRegs *vregs){
+	WRITE32(vregs->Status, VIRTIO_RESET);
+	memBar();
+	WRITE32(vregs->Status, READ32(vregs->Status) | VIRTIO_ACK);
+	memBar();
+	WRITE32(vregs->Status, READ32(vregs->Status) | VIRTIO_DRIVER);
+	memBar();
+	u32 driverFeature = READ32(vregs->DeviceFeatures);
+	WRITE32(vregs->DriverFeatures, driverFeature);
+	memBar();
+	WRITE32(vregs->Status, READ32(vregs->Status) | VIRTIO_STATUS_OK);
+	memBar();
+	if(!(READ32(vregs->Status) & VIRTIO_STATUS_OK)){
+		PANIC("Virtio did not accept our features :(");
+		return FALSE;
+	};
+	return TRUE;
 };
-void virtioInit(){
+u8 virtioInit(){
     while(virtioStart < virtioEnd){
         virtioRegs *vregs = (virtioRegs*)virtioStart;
         virtioStart += 0x1000;
         if(READ32(vregs->MagicValue) != VIRTIO_MAGIC) continue;
-        //TODO: reset and ack
         switch(READ32(vregs->DeviceID)){
-            case 2:
-                virtioSetUpBlk(vregs);
-                break;
+            case 2: return virtioSetUpBlk(vregs);
         };
     };
+	return FALSE;
 };
