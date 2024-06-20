@@ -14,6 +14,7 @@ u64 kernel_init(){
     mapMemRange(hades.vtable, (void*)UART_MEM, (void*)UART_MEM + 100, ENTRY_READ | ENTRY_WRITE);
     mapMemRange(hades.vtable, (void*)MTIMECMP, (void*)MTIME, ENTRY_READ | ENTRY_WRITE);
     mapMemRange(hades.vtable, (void*)PLIC_PRIORITY, (void*)PLIC_CLAIM, ENTRY_READ | ENTRY_WRITE);
+    mapMemRange(hades.vtable, (void*)virtioStart, (void*)virtioEnd, ENTRY_READ | ENTRY_WRITE);
     kprint("kernel_vtable: %p\n", hades.vtable);
     return (u64)8 << 60 | ((u64)hades.vtable >> 12); //8 << 60 for Sv39 scheme
 };
@@ -24,4 +25,5 @@ void kernel_main(){
     plicSetThreshold(0);
     plicEnable(PLIC_UART_ID, 1);
     *MTIMECMP = *MTIME + CLOCK_FREQUENCY;
+    virtioInit();
 };

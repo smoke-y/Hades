@@ -9,3 +9,5 @@
 #include "memory.c"
 #include "syscall.c"
 #include "trap.c"
+
+#include "../drivers/virtio.c"
