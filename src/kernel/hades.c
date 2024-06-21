@@ -15,11 +15,22 @@ typedef struct{
     u64   len;
     u64   enteredUpto;
 }InputContext;
+struct Queue;
+struct virtioRegs;
+typedef struct{
+	struct Queue *queue;
+	struct virtioRegs *regs;
+	u32 idx;
+	u32 ackIdx;
+}VirtioBlkDriver;
 
 typedef struct{
-    VTable *vtable;
     TrapFrame trapFrame;
     InputContext inputContext;
+    VirtioBlkDriver blkDriver;
+    VTable *vtable;
+    u8     *table;
+    char   *pages;
 }HadesKernel;
 
 static HadesKernel hades;

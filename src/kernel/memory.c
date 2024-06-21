@@ -17,37 +17,52 @@ extern char _bss_end;
 extern char _memory_start;
 extern char _memory_end;
 
-static u8   *table;
-static char *pages;
-
 void pageMemInit(){
-    pages = &_heap + (TABLE_PAGE_COUNT * PAGE_SIZE);
+    hades.pages = &_heap + (TABLE_PAGE_COUNT * PAGE_SIZE);
     u64 order = (1 << 12) - 1;
-    pages = (char*)(((u64)pages + order) & ~order);
-    table = (u8*)&_heap;
-    memset(table, PAGE_FREE, PAGE_SIZE * TABLE_PAGE_COUNT);
+    hades.pages = (char*)(((u64)hades.pages + order) & ~order);
+    hades.table = (u8*)&_heap;
+    memset(hades.table, PAGE_FREE, PAGE_SIZE * TABLE_PAGE_COUNT);
 
-    kprint("heap_start: %p\npage_table_len: %d\npage_table_start: %p\npages_start: %p\n", &_heap, TABLE_PAGE_COUNT, table, pages);
+    kprint("heap_start: %p\npage_table_len: %d\npage_table_start: %p\npages_start: %p\n", &_heap, TABLE_PAGE_COUNT, hades.table, hades.pages);
 };
 char* allocHardPage(){
     const u32 entriesInATable = ceil((f32)(TABLE_PAGE_COUNT * PAGE_SIZE)/(f32)sizeof(u8));
     for(u32 x=0; x<entriesInATable; x++){
-        if(table[x] == PAGE_FREE){
-            table[x] = PAGE_NOT_FREE;
-            return &pages[PAGE_SIZE * x];
+        if(hades.table[x] == PAGE_FREE){
+            hades.table[x] = PAGE_NOT_FREE;
+            return &hades.pages[PAGE_SIZE * x];
+        };
+    };
+    return 0;
+};
+char* allocContHardPage(u32 cont){
+    //NOTE: we do not keep track of continuous allocation
+    const u32 entriesInATable = ceil((f32)(TABLE_PAGE_COUNT * PAGE_SIZE)/(f32)sizeof(u8));
+    for(u32 x=0; x<entriesInATable; x++){
+        u8 c = TRUE;
+        for(u32 i=0; i<cont; i++){
+            if(hades.table[x+i] != PAGE_FREE){
+                c = FALSE;
+                break;
+            };
+        };
+        if(c){
+            memset(&hades.table[x], PAGE_NOT_FREE, sizeof(u8)*cont);
+            return &hades.pages[PAGE_SIZE*x];
         };
     };
     return 0;
 };
 void freeHardPage(void *ptr){
-    const u32 off = ((char*)ptr - pages) / PAGE_SIZE;
-    table[off] = PAGE_FREE;
+    const u32 off = ((char*)ptr - hades.pages) / PAGE_SIZE;
+    hades.table[off] = PAGE_FREE;
 };
 void dumpHardPageTable(){
     kprint("---hard pages---\n");
     const u32 entriesInATable = ceil((f32)(TABLE_PAGE_COUNT * PAGE_SIZE)/(f32)sizeof(u8));
     for(u32 x=0; x<entriesInATable; x++){
-        if(table[x] == PAGE_NOT_FREE) kprint("%d -> %p\n", x, &pages[PAGE_SIZE * x]);
+        if(hades.table[x] == PAGE_NOT_FREE) kprint("%d -> %p\n", x, &hades.pages[PAGE_SIZE * x]);
     };  
 };
 
