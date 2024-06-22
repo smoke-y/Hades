@@ -10,6 +10,8 @@ extern char _heap;
 extern char _stack;
 extern char _text_start;
 extern char _text_end;
+extern char _rodata_start;
+extern char _rodata_end;
 extern char _data_start;
 extern char _data_end;
 extern char _bss_start;
@@ -151,6 +153,7 @@ void mapMemRange(VTable *root, void *restrict beginPtr, void *restrict endPtr, u
     u64 order = (1 << 12) - 1;
     begin = begin & ~order;
     end = (end + order) & ~order;
+    kprint("begin: %p end: %p\n", begin, end);
 
     while(begin != end){
         vmap(root, begin, begin, bits);

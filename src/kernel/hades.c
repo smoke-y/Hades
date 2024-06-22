@@ -20,8 +20,11 @@ struct virtioRegs;
 typedef struct{
 	struct Queue *queue;
 	struct virtioRegs *regs;
+    char *reqMem;
+    u32 reqBit;
 	u32 idx;
 	u32 ackIdx;
+    u8 readOnly;
 }VirtioBlkDriver;
 
 typedef struct{

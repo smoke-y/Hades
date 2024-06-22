@@ -9,8 +9,12 @@ u64 kernel_init(){
     memset(&hades.trapFrame, 0, sizeof(TrapFrame));
     hades.trapFrame.stack = allocHardPage() + PAGE_SIZE;  //stack grows downwards
     asm volatile ("csrw mscratch, %0" :: "r"(&hades.trapFrame));
+    mapMemRange(hades.vtable, &_rodata_start, &_rodata_end, ENTRY_READ);
     mapMemRange(hades.vtable, &_text_start, &_text_end, ENTRY_EXECUTE | ENTRY_READ);
-    mapMemRange(hades.vtable, &_data_start, &_heap + (&_memory_end - &_memory_start), ENTRY_READ | ENTRY_WRITE);
+    mapMemRange(hades.vtable, &_data_start, &_data_end, ENTRY_READ | ENTRY_WRITE);
+    mapMemRange(hades.vtable, &_bss_start, &_bss_end, ENTRY_READ | ENTRY_WRITE);
+    mapMemRange(hades.vtable, &_bss_end, &_stack, ENTRY_READ | ENTRY_WRITE);
+    mapMemRange(hades.vtable, &_stack, &_memory_end, ENTRY_READ | ENTRY_WRITE); //heap and pages
     mapMemRange(hades.vtable, (void*)UART_MEM, (void*)UART_MEM + 100, ENTRY_READ | ENTRY_WRITE);
     mapMemRange(hades.vtable, (void*)MTIMECMP, (void*)MTIME, ENTRY_READ | ENTRY_WRITE);
     mapMemRange(hades.vtable, (void*)PLIC_PRIORITY, (void*)PLIC_CLAIM, ENTRY_READ | ENTRY_WRITE);
@@ -25,7 +29,5 @@ void kernel_main(){
     plicSetThreshold(0);
     plicEnable(PLIC_UART_ID, 1);
     *MTIMECMP = *MTIME + CLOCK_FREQUENCY;
-    if(virtioInit()){
-        
-    };
+    if(virtioInit() == FALSE) return;
 };

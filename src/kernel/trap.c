@@ -113,6 +113,7 @@ u64 trap(u64 epc, u64 tval, u64 cause, u64 hart, u64 status, TrapFrame *frame){
             }break;
             case 13:{
                 kprint("Load page fault: hart[%d] program_counter[%p] trap_value[%d]\n", hart, epc, tval);
+                asm volatile ("j _stall");
             }break;
             case 15:{
                 kprint("Store page fault: hart[%d] program_counter[%p] trap_value[%d]\n", hart, epc, tval);

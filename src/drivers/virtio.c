@@ -1,11 +1,13 @@
 //ref: https://brennan.io/2020/03/22/sos-block-device/
 
-#define VIRTIO_MAGIC     0x74726976
-#define VIRTIO_RESET     0
-#define VIRTIO_ACK       1
-#define VIRTIO_DRIVER    2
-#define VIRTIO_STATUS_OK 8
-#define VIRTIO_RING_SIZE 128
+#define VIRTIO_MAGIC       0x74726976
+#define VIRTIO_RESET       0
+#define VIRTIO_ACK         1
+#define VIRTIO_DRIVER      2
+#define VIRTIO_STATUS_OK   8
+#define VIRTIO_RING_SIZE   128
+#define VIRTIO_DESC_F_NEXT 1
+#define VIRTIO_DESC_F_WRITE 2
 #define READ32(reg) (*(volatile s32*)&(reg))
 #define WRITE32(reg, value) (*(volatile s32*)&(reg))=(value)
 
