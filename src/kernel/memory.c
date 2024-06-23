@@ -153,7 +153,6 @@ void mapMemRange(VTable *root, void *restrict beginPtr, void *restrict endPtr, u
     u64 order = (1 << 12) - 1;
     begin = begin & ~order;
     end = (end + order) & ~order;
-    kprint("begin: %p end: %p\n", begin, end);
 
     while(begin != end){
         vmap(root, begin, begin, bits);

@@ -10,7 +10,7 @@
 typedef struct{
 	u32 blkType;
 	u32 reserved;
-	u32 sector;
+	u64 sector;
 } HeaderBlk;
 typedef struct{
 	HeaderBlk header;
@@ -22,14 +22,14 @@ typedef struct{
 u8 virtioSetUpBlk(struct virtioRegs *vregs){
 	WRITE32(vregs->Status, VIRTIO_RESET);
 	memBar();
-	WRITE32(vregs->Status, READ32(vregs->Status) | VIRTIO_ACK);
+	WRITE32(vregs->Status, VIRTIO_ACK);
 	memBar();
-	WRITE32(vregs->Status, READ32(vregs->Status) | VIRTIO_DRIVER);
+	WRITE32(vregs->Status, VIRTIO_DRIVER);
 	memBar();
 	u32 driverFeatures = READ32(vregs->DeviceFeatures);
 	WRITE32(vregs->DriverFeatures, driverFeatures);
 	memBar();
-	WRITE32(vregs->Status, READ32(vregs->Status) | VIRTIO_STATUS_OK);
+	WRITE32(vregs->Status, VIRTIO_STATUS_OK);
 	memBar();
 	if(!(READ32(vregs->Status) & VIRTIO_STATUS_OK)){
 		PANIC("Virtio did not accept our features :(");
@@ -64,7 +64,7 @@ u8 virtioSetUpBlk(struct virtioRegs *vregs){
 u16 fillNextDescriptor(Descriptor *desc){
 	hades.blkDriver.idx = (hades.blkDriver.idx + 1) % VIRTIO_RING_SIZE;
 	hades.blkDriver.queue->desc[hades.blkDriver.idx] = *desc;
-	if(desc->flags & VIRTIO_DESC_F_NEXT){
+	if((desc->flags & VIRTIO_DESC_F_NEXT) != 0){
 		hades.blkDriver.queue->desc[hades.blkDriver.idx].next = (hades.blkDriver.idx+1)%VIRTIO_RING_SIZE;
 	};
 	return hades.blkDriver.idx;
@@ -106,11 +106,11 @@ u8 blockCmd(u8 write, u8 *buffer, u32 len, u32 off){
 
 	desc.addr  = (u64)buffer;
 	desc.len   = len;
-	desc.flags = VIRTIO_DESC_F_NEXT | (write?VIRTIO_DESC_F_WRITE:0);
+	desc.flags = VIRTIO_DESC_F_NEXT | (write?0:VIRTIO_DESC_F_WRITE);
 	desc.next  = 0;
 	fillNextDescriptor(&desc);
 
-	desc.addr  = (u64)&(reqBlk->status);
+	desc.addr  = (u64)&reqBlk->status;
 	desc.len   = sizeof(reqBlk->status);
 	desc.flags = VIRTIO_DESC_F_WRITE;
 	desc.next  = 0;

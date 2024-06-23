@@ -28,6 +28,10 @@ void kernel_main(){
     kprint("[+] Entered kernel_main in supervisor mode\n");
     plicSetThreshold(0);
     plicEnable(PLIC_UART_ID, 1);
+    for(u32 x=0; x<11; x++) plicEnable(x, 1);
     *MTIMECMP = *MTIME + CLOCK_FREQUENCY;
     if(virtioInit() == FALSE) return;
+    u8 buff[512];
+    memset(buff, 69, 512);
+    blockCmd(TRUE, buff, 512, 1024);
 };

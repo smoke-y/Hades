@@ -24,8 +24,6 @@ void plicEnable(enum PlicId id, u8 priority){
 
 void plicSetThreshold(u8 threshold){*PLIC_THRESHOLD = threshold & MAX_PLIC_PRIORITY;};
 
-extern void _switch_to_user(TrapFrame*, u64, u64);
-
 u64 trap(u64 epc, u64 tval, u64 cause, u64 hart, u64 status, TrapFrame *frame){
     const u64 causeNum = cause & 0xfff;
     if((cause >> 63) & 1 == 1){
@@ -35,13 +33,7 @@ u64 trap(u64 epc, u64 tval, u64 cause, u64 hart, u64 status, TrapFrame *frame){
                 kprint("Machine software interrupt: hart[%d]\n", hart);
             }break;
             case 7:{
-                /*
-                SwitchToUserContext stuc = schedule(&hades.scheduler);
-                if(stuc.trapFrame != 0){
-                    _switch_to_user(stuc.trapFrame, stuc.mepc, stuc.satp);
-                };
                 *MTIMECMP = (*MTIME) + CLOCK_FREQUENCY;     //raise interrupt after 1 sec
-                */
             }break;
             case 11:{
                 u32 interrupt = *PLIC_CLAIM;

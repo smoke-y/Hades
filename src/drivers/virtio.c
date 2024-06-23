@@ -21,9 +21,9 @@ typedef struct{
 	u16 next;
 } Descriptor;
 typedef struct{
-	u16 ring[VIRTIO_RING_SIZE];
 	u16 flags;
 	u16 idx;
+	u16 ring[VIRTIO_RING_SIZE];
 	u16 event;
 }Available;
 typedef struct{
@@ -31,15 +31,15 @@ typedef struct{
 	u32 len;
 }UsedElem;
 typedef struct{
-	UsedElem ring[VIRTIO_RING_SIZE];
 	u16 flags;
 	u16 idx;
+	UsedElem ring[VIRTIO_RING_SIZE];
 	u16 event;
 }Used;
 struct Queue{
 	Descriptor desc[VIRTIO_RING_SIZE];
 	Available avail;
-	u8 padding[PAGE_SIZE - (sizeof(Descriptor) + sizeof(Available))];
+	u8 padding[PAGE_SIZE - (sizeof(Descriptor)*VIRTIO_RING_SIZE + sizeof(Available))];
 	Used used;
 };
 struct virtioRegs{
