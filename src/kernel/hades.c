@@ -1,4 +1,5 @@
 #define VTABLE_ENTRIES_COUNT 512
+#define MAX_PROCESS 5
 
 typedef struct{
     u64 entries[VTABLE_ENTRIES_COUNT];
@@ -15,25 +16,28 @@ typedef struct{
     u64   len;
     u64   enteredUpto;
 }InputContext;
-struct Queue;
-struct virtioRegs;
 typedef struct{
-	struct Queue *queue;
-	struct virtioRegs *regs;
-    char *reqMem;
-    u32 reqBit;
-	u32 idx;
-	u32 ackIdx;
-    u8 readOnly;
-}VirtioBlkDriver;
+    TrapFrame trapFrame;
+    VTable *vtable;
+    char   *stack;
+    u64     programCounter;
+    u16     pid;
+}Process;
+typedef struct{
+    //note this entrire struct should fit inside a page
+    u16 count;
+    u16 cur;
+    Process processes[MAX_PROCESS];
+}Scheduler;
 
 typedef struct{
     TrapFrame trapFrame;
     InputContext inputContext;
-    VirtioBlkDriver blkDriver;
+    Scheduler scheduler;
     VTable *vtable;
     u8     *table;
     char   *pages;
+    u8      pid;
 }HadesKernel;
 
 static HadesKernel hades;

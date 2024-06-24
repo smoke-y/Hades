@@ -33,18 +33,22 @@ u64 trap(u64 epc, u64 tval, u64 cause, u64 hart, u64 status, TrapFrame *frame){
                 kprint("Machine software interrupt: hart[%d]\n", hart);
             }break;
             case 7:{
+                SwitchToUserContext stuc = schedule(&hades.scheduler);
+                if(stuc.trapFrame != 0){
+                    //_switch_to_user(stuc.trapFrame, stuc.mepc, stuc.satp);
+                };
                 *MTIMECMP = (*MTIME) + CLOCK_FREQUENCY;     //raise interrupt after 1 sec
             }break;
             case 11:{
                 u32 interrupt = *PLIC_CLAIM;
                 ASSERT(interrupt != 0);
-                char c = uartGet();
-                if(hades.inputContext.buff == 0){
-                    *PLIC_CLAIM = interrupt;       //by writing it back, we tell the PLIC that it has been claimed
-                    return epc;
-                };
                 switch(interrupt){
                     case 10:{
+                        char c = uartGet();
+                        if(hades.inputContext.buff == 0){
+                            *PLIC_CLAIM = interrupt;       //by writing it back, we tell the PLIC that it has been claimed
+                            return epc;
+                        };
                         if(hades.inputContext.enteredUpto > hades.inputContext.len-1){     //-1 for null byte
                             hades.inputContext.buff[hades.inputContext.enteredUpto++] = '\0';
                             hades.inputContext.buff = 0;

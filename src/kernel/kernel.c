@@ -6,6 +6,9 @@ u64 kernel_init(){
     kprint("[+] Entered kernel_init from bootloader in machine mode\nuart_mem: %p\n", UART_MEM);
     pageMemInit();
     hades.vtable = newVTable();
+    hades.scheduler.count = 0;
+    hades.scheduler.cur = 0;
+    hades.pid = 0;
     memset(&hades.trapFrame, 0, sizeof(TrapFrame));
     hades.trapFrame.stack = allocHardPage() + PAGE_SIZE;  //stack grows downwards
     asm volatile ("csrw mscratch, %0" :: "r"(&hades.trapFrame));
@@ -18,7 +21,6 @@ u64 kernel_init(){
     mapMemRange(hades.vtable, (void*)UART_MEM, (void*)UART_MEM + 100, ENTRY_READ | ENTRY_WRITE);
     mapMemRange(hades.vtable, (void*)MTIMECMP, (void*)MTIME, ENTRY_READ | ENTRY_WRITE);
     mapMemRange(hades.vtable, (void*)PLIC_PRIORITY, (void*)PLIC_CLAIM, ENTRY_READ | ENTRY_WRITE);
-    mapMemRange(hades.vtable, (void*)virtioStart, (void*)virtioEnd, ENTRY_READ | ENTRY_WRITE);
     kprint("kernel_vtable: %p\n", hades.vtable);
     return (u64)8 << 60 | ((u64)hades.vtable >> 12); //8 << 60 for Sv39 scheme
 };
@@ -30,8 +32,11 @@ void kernel_main(){
     plicEnable(PLIC_UART_ID, 1);
     for(u32 x=0; x<11; x++) plicEnable(x, 1);
     *MTIMECMP = *MTIME + CLOCK_FREQUENCY;
-    if(virtioInit() == FALSE) return;
-    u8 buff[512];
-    memset(buff, 69, 512);
-    blockCmd(TRUE, buff, 512, 1024);
+    char buff[1024];
+    while(TRUE){
+        kprint(">> ");
+        kscan(buff, 1024);
+        if(strcmp("exit", buff)) break;
+    };
+    kprint("stalling...\n");
 };
