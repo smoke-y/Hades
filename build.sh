@@ -5,7 +5,7 @@ if [ ! -d "bin/" ]; then
     touch bin/hdd.dsk
 fi
 
-riscv64-unknown-elf-gcc -mcmodel=medany -nostdlib -c src/kernel/kernel.c -o bin/kernel.o -g
+riscv64-unknown-elf-gcc -mcmodel=medany -nostdlib -c src/boot/kernel.c -o bin/kernel.o -g
 if [ $? -eq 0 ]; then
     riscv64-unknown-elf-as src/bootloader.asm -o bin/hades.o -g
     riscv64-unknown-elf-ld -nostdlib -melf64lriscv -T script.ld bin/kernel.o bin/hades.o -o bin/hades.elf -g
